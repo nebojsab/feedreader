@@ -95,8 +95,10 @@ $(function() {
          * the use of Jasmine's beforeEach and asynchronous done() function.
          */
 
-        beforeEach(function(callback) {
-            loadFeed(0, callback);
+        beforeEach(function(done) {
+            loadFeed(0, function() {
+                done();
+            });
         });
 
         it('function completes with at least one .entry element within the .feed container', function() {
@@ -107,20 +109,32 @@ $(function() {
     /* TODO: Write a new test suite named "New Feed Selection"*/
 
     describe('New Feed Selection', function() {
+        var firstFeed;
+        var secondFeed;
 
         /* TODO: Write a test that ensures when a new feed is loaded
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
-        beforeEach(function(callback) {
-            loadFeed(0);
-            prevTopPost = $('.entry').eq(0).html();
 
-            loadFeed(1, callback);
+        beforeEach(function(done) {
+            loadFeed(1, function() {
+                firstFeed = $('.feed').html();
+                loadFeed(2, function() {
+                    done();
+                });
+            });
         });
 
-        it('on feed load content changes', function() {
-            expect($('.entry').eq(0).html()).not.toEqual(prevTopPost);
+        afterEach(function() {
+            loadFeed(0);
+        });
+
+        it('displays feed content change on menu select', function() {
+            expect(firstFeed).toBeDefined();
+            secondFeed = $('.feed').html();
+            expect(secondFeed).toBeDefined();
+            expect(firstFeed).not.toEqual(secondFeed);
         });
     });
 }());
